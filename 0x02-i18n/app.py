@@ -69,27 +69,13 @@ def get_locale() -> str:
 def get_timezone():
     """Try to find the timezone parameter in URL parameters
     """
-    if 'timezone' in request.args:
-        user_timezone = request.args.get('timezone')
-        try:
-            pytz.timezone(user_timezone)
-            return user_timezone
-        except pytz.UnknownTimeZoneError:
-            pass
-
-    """Try to find the time zone from user settings (replace with your logic)
-    """
-    if g.user:
-        user_timezone = g.user.get('timezone')
-        try:
-            pytz.timezone(user_timezone)
-            return user_timezone
-        except pytz.UnknownTimeZoneError:
-            pass
-
-    """Default to UTC if no valid time zone found
-    """
-    return 'UTC'
+    timezone = request.args.get('timezone', '').strip()
+    if not timezone and g.user:
+        timezone = g.user['timezone']
+    try:
+        return pytz.timezone(timezone).zone
+    except pytz.exceptions.UnknownTimeZoneError:
+        return app.config['BABEL_DEFAULT_TIMEZONE']
 
 
 @app.route("/")
@@ -99,7 +85,7 @@ def home() -> str:
     simply outputs “Welcome to Holberton” as page
     title (<title>) and “Hello world” as header (<h1>).
     """
-    return render_template('7-index.html')
+    return render_template('index.html')
 
 
 if __name__ == '__main__':
