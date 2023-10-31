@@ -7,6 +7,7 @@ from flask import Flask
 from flask import render_template
 from flask_babel import Babel
 
+
 class Config(object):
     """
     create a Config class that has a LANGUAGES
